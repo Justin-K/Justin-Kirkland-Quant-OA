@@ -1,9 +1,11 @@
 from typing import List, Dict
+from praw.models import Redditor
 
 
 class BaseData:
 
     def __init__(self) -> None:
+        self.user: Redditor
         self.text: str = ""
         self.upvotes: int = 0
         self.downvotes: int = 0
