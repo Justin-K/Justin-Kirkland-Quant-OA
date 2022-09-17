@@ -15,7 +15,8 @@ class SubredditScraper:
         if subreddit_name[0:2] == "r/":
             subreddit_name = subreddit_name[2:len(subreddit_name)]
         try:
-            type_: str = self.client.subreddit(subreddit_name).subreddit_type
+            subreddit = self.client.subreddit(subreddit_name)
+            type_: str = subreddit.subreddit_type
             if type_ != "public":
                 raise SubredditInaccessibleError(f"The subreddit \"r/{subreddit_name}\" is not public.")
         except PrawcoreException as e:
