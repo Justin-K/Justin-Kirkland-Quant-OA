@@ -1,5 +1,6 @@
 from typing import List, Dict
 from praw.models import Redditor
+from datetime import date
 
 
 class BaseData:
@@ -23,10 +24,11 @@ class Post(BaseData):
     def __init__(self) -> None:
         super().__init__()
         self.top_replies: List[Comment] = []
+        self.is_image: bool = False
 
 
-class SubredditData:
+class SubredditResult:
 
     def __init__(self) -> None:
         self.accounts: int = 0
-        self.top_posts: Dict[int: Post] = {}
+        self.top_posts: Dict[date: Post] = {}
