@@ -12,8 +12,8 @@ class SubredditScraper:
         )
 
     def scrape_subreddit(self, subreddit_name: str):
-        if subreddit_name[0:2] == "r/":
-            subreddit_name = subreddit_name[2:len(subreddit_name)]
+        if subreddit_name[0: 2] == "r/":
+            subreddit_name = subreddit_name[2: len(subreddit_name)]
         try:
             subreddit = self.client.subreddit(subreddit_name)
             type_: str = subreddit.subreddit_type
