@@ -1,2 +1,2 @@
 praw
-python-dateutil
+psaw

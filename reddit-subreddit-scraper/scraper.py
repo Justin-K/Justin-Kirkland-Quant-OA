@@ -1,10 +1,12 @@
+import datetime
+
 from praw import Reddit
 from praw.models import Subreddit
 from prawcore.exceptions import PrawcoreException
 from errors import SubredditInaccessibleError
 from enums import Timeframe
 from data_classes import SubredditResult
-
+#from datetime import datetime
 
 class SubredditScraper:
 
@@ -15,7 +17,7 @@ class SubredditScraper:
         )
 
     def validate_subreddit(self, subreddit_name: str) -> Subreddit:
-        if subreddit_name[0: 2] == "r/":
+        if subreddit_name[0: 2] == "r/" or subreddit_name[0: 2] == "R/":
             subreddit_name = subreddit_name[2: len(subreddit_name)]
         try:
             sreddit = self.client.subreddit(subreddit_name)
@@ -32,5 +34,8 @@ class SubredditScraper:
                          limit: int = 5):
         subreddit = self.validate_subreddit(subreddit_name)
         result: SubredditResult = SubredditResult()
-        # for post in subreddit.top(time_filter=timeframe.value, limit=limit):
-        #     pass
+        for post in subreddit.top(time_filter=timeframe.value, limit=10):
+            pass
+            # print(datetime.datetime.utcfromtimestamp(post.created_utc), post.id)
+            # for comment in post.comments:
+            #     pass
