@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Timeframe(Enum):
     WEEK = "week"
     HOUR = "hour"
