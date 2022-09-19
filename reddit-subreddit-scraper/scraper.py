@@ -8,7 +8,6 @@ from pmaw import PushshiftAPI
 
 
 class SubredditScraper:
-    MAX_CACHE: int = 50
 
     def __init__(self, site: str):
         self.client = Reddit(
@@ -28,11 +27,6 @@ class SubredditScraper:
             raise SubredditInaccessibleError(f"The subreddit \"r/{subreddit_name}\" is inaccessible.") from e
         return sreddit
 
-    def __process_cache(self, cache: List[Submission]):
-        for x in cache:
-            print(datetime.utcfromtimestamp(x.created_utc))
-        print("*********END CACHE DUMP**************")
-
     def scrape_subreddit(self,
                          subreddit_name: str,
                          start_date: datetime,
@@ -41,15 +35,10 @@ class SubredditScraper:
         subreddit = self.validate_subreddit(subreddit_name)
         _pmaw = PushshiftAPI(praw=self.client)
         search = _pmaw.search_submissions(after=int(start_date.timestamp()),
-                                         before=int(end_date.timestamp()),
-                                         limit=None,
-                                         subreddit=subreddit,
-                                         filter_fn=lambda t: t["score"] > 0
-                                         )
-
+                                          before=int(end_date.timestamp()),
+                                          limit=None,
+                                          subreddit=subreddit,
+                                          filter_fn=lambda t: t["score"] > 0
+                                          )
         s_search = sorted([post for post in search], key=lambda x: x["score"], reverse=True)
         return s_search[:limit]
-
-
-        #for i in search:
-            #print(datetime.utcfromtimestamp(i.created_utc))
