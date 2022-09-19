@@ -31,14 +31,21 @@ class SubredditScraper:
                          subreddit_name: str,
                          start_date: datetime,
                          end_date: datetime,
-                         limit=5):
+                         filter_fn=lambda t: t["score"] > 0) -> List[Submission]:
         subreddit = self.validate_subreddit(subreddit_name)
-        _pmaw = PushshiftAPI(praw=self.client)
-        search = _pmaw.search_submissions(after=int(start_date.timestamp()),
-                                          before=int(end_date.timestamp()),
-                                          limit=None,
-                                          subreddit=subreddit,
-                                          filter_fn=lambda t: t["score"] > 0
-                                          )
+        pmaw_client = PushshiftAPI(praw=self.client)
+        search = pmaw_client.search_submissions(after=int(start_date.timestamp()),
+                                                before=int(end_date.timestamp()),
+                                                limit=None,
+                                                subreddit=subreddit,
+                                                filter_fn=filter_fn
+                                                )
+        return search
+
+    def get_top_submissions(self, subreddit: str,
+                            start_date: datetime,
+                            end_date: datetime,
+                            limit=5) -> List[Submission]:
+        search = self.scrape_subreddit(subreddit, start_date, end_date)
         s_search = sorted([post for post in search], key=lambda x: x["score"], reverse=True)
         return s_search[:limit]
