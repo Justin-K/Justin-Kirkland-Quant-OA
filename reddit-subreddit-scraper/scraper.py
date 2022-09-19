@@ -1,11 +1,10 @@
-import datetime
+from datetime import datetime
 from typing import List
 from praw import Reddit
 from praw.models import Subreddit, Submission
 from prawcore.exceptions import PrawcoreException
 from errors import SubredditInaccessibleError
-from enums import Timeframe
-from data_classes import SubredditResult, Post
+from pmaw import PushshiftAPI
 
 
 class SubredditScraper:
@@ -30,33 +29,27 @@ class SubredditScraper:
         return sreddit
 
     def __process_cache(self, cache: List[Submission]):
-        pass
+        for x in cache:
+            print(datetime.utcfromtimestamp(x.created_utc))
+        print("*********END CACHE DUMP**************")
 
     def scrape_subreddit(self,
                          subreddit_name: str,
-                         timeframe: Timeframe = Timeframe.ALL,
-                         timeframe_scalar: int = 1,
-                         ):
+                         start_date: datetime,
+                         end_date: datetime,
+                         limit=5):
         subreddit = self.validate_subreddit(subreddit_name)
-        if timeframe == Timeframe.YEAR and timeframe_scalar > 1:
-            timeframe = Timeframe.ALL
-        if timeframe is not Timeframe.ALL:
-            start: int = int((datetime.datetime.utcnow() - datetime.timedelta(
-                milliseconds=timeframe.value * timeframe_scalar
-                )).timestamp())
-        else:
-            start: int = int(datetime.datetime(1970, 1, 1).timestamp())
-        cache: List[Submission] = []
+        _pmaw = PushshiftAPI(praw=self.client)
+        search = _pmaw.search_submissions(after=int(start_date.timestamp()),
+                                         before=int(end_date.timestamp()),
+                                         limit=None,
+                                         subreddit=subreddit,
+                                         filter_fn=lambda t: t["score"] > 0
+                                         )
 
-        for post in subreddit.top(time_filter=timeframe.name.lower()):
-            if post.created_utc > start:
-                if len(cache) >= SubredditScraper.MAX_CACHE:
-                    self.__process_cache(cache)
-                    cache.clear()
-                else:
-                    cache.append(post)
-        if cache:
-            self.__process_cache(cache)
-            cache.clear()
+        s_search = sorted([post for post in search], key=lambda x: x["score"], reverse=True)
+        return s_search[:limit]
 
 
+        #for i in search:
+            #print(datetime.utcfromtimestamp(i.created_utc))

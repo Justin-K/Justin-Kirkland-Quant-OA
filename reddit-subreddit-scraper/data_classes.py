@@ -24,7 +24,7 @@ class Post(BaseData):
         super().__init__()
         self.title: str = ""
         self.top_replies: List[Comment] = []
-        self.is_image: bool = False
+        self.is_image: bool
 
     def __repr__(self) -> str:
         return f"Title: {self.title} Upvotes: {self.upvotes}"
