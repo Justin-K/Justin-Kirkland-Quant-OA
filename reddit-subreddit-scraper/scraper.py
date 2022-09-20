@@ -61,7 +61,7 @@ class SubredditScraper:
         s_search = sorted(search, key=lambda x: x["score"], reverse=True)
         return s_search[:limit]
 
-    def get_top_submissions_and_comments(self, subreddit, start_date, end_date):
+    def get_top_submissions_and_comments(self, subreddit, start_date, end_date) -> List[Submission]:
         search = self.get_top_submissions(subreddit,
                                           start_date,
                                           end_date)
