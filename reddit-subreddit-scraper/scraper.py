@@ -70,7 +70,7 @@ class SubredditScraper:
 
         def sort_(submission):
             submission.comment_sort = "top"
-            submission.comments = submission.comments.list()
+            submission.post_comments = submission.post_comments.list()
         with ThreadPoolExecutor(max_workers=13) as exe:
             exe.map(sort_, submissions)
 
