@@ -1,15 +1,17 @@
-import time
+import concurrent.futures
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Tuple
 from praw import Reddit
-from praw.models import Subreddit, Submission
-from praw.models.comment_forest import CommentForest
+from praw.models import Submission, Subreddit
 from pmaw import Response
 from prawcore.exceptions import PrawcoreException
 from errors import SubredditInaccessibleError
 from pmaw import PushshiftAPI
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from enums import Timeframe
+from heapq import nlargest
 
+from pickle import dump, load
 
 class SubredditScraper:
 
@@ -50,16 +52,14 @@ class SubredditScraper:
 
     def get_top_submissions(self, subreddit: str,
                             start_date: datetime,
-                            end_date: datetime,
-                            limit=5) -> List[Response]:
+                            end_date: datetime) -> List[Response]:
         search = self.scrape_subreddit(subreddit,
                                        start_date,
-                                       end_date,
-                                       )
+                                       end_date)
 
         search = [i for i in search]
-        s_search = sorted(search, key=lambda x: x["score"], reverse=True)
-        return s_search[:limit]
+        s_search = nlargest(5, search, key=lambda x: x["score"])
+        return s_search
 
     def get_top_submissions_and_comments(self, subreddit, start_date, end_date) -> List[Submission]:
         search = self.get_top_submissions(subreddit,
@@ -71,7 +71,45 @@ class SubredditScraper:
         def sort_(submission):
             submission.comment_sort = "top"
             submission.comments = submission.comments.list()
-
         with ThreadPoolExecutor(max_workers=13) as exe:
             exe.map(sort_, submissions)
+
         return submissions
+
+
+    #https://stackoverflow.com/questions/56269997/get-reddit-usernames-of-users-who-use-a-specific-subreddit
+    def num_new_accounts(self, subreddit, comments_to_scan=200):
+        sreddit = self.validate_subreddit(subreddit)
+        created_on = set()
+
+        for c in sreddit.comments(limit=comments_to_scan):
+            a = c.author
+            created_on.add(a.created_utc)
+        three_months = Timeframe.MONTH.value * 3
+        three_months_timestamp = datetime.now().timestamp() - three_months
+        return len([i for i in created_on if i >= three_months_timestamp])
+
+
+class SimplePickler:
+
+    def __init__(self, fname: str):
+        self.file = fname
+
+    def write(self, content):
+        with open(self.file, "ab") as f:
+            dump(content, f)
+
+    def read(self):
+        content = []
+        f = open(self.file, "rb")
+        while True:
+            try:
+                content.append(load(f))
+            except EOFError:
+                f.close()
+                break
+        return content
+
+    def delete(self):
+        with open(self.file, "w") as f:
+            f.write("")
