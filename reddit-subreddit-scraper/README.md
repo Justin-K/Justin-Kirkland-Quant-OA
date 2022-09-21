@@ -11,10 +11,10 @@ Installation
 
 Quickstart
 ==========
-``
+```
 (venv) C:\path\to\reddit-subreddit-scraper\> python subreddit_scraper_cli.py r/gaming "2022-3-3" "2022-9-1" -output_file=YOUR_OUTPUT_FILE.json -comments=200
-``
-##Code Overview##
+```
+###Code Overview
 - scraper.py
   - SubredditScraper
       - The job of this class is to scrape the PushShift.io and Reddit APIs to gather the top 5 posts between two dates, the top 6 replies to each post, and the number of accounts that were created less than 3 months ago.
