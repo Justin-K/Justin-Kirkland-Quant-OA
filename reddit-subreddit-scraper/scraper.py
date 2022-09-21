@@ -13,7 +13,9 @@ from os import listdir, getcwd
 
 
 class SubredditScraper:
-
+    """
+    A class to scrape all pertinent data from a given subreddit between two dates.
+    """
     def __init__(self, site: str):
         if "praw.ini" not in listdir(getcwd()):
             raise ConfigFileNotFound(f"A praw.ini config file was not found in \"{getcwd()}\". "

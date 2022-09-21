@@ -3,7 +3,9 @@ from datetime import datetime
 from time import perf_counter
 from scraper import SubredditScraper
 from subreddit_parser import SubredditProcessor, SubredditJSONSerializer
-
+"""
+    A command-line-interface to scrape data from a subreddit into a JSON file.
+"""
 
 cli_parser = ArgumentParser(description="Subreddit scraper to scrape a given subreddit to obtain the top 5 posts and the top 6 replies to each post"
                                         "between two dates.")

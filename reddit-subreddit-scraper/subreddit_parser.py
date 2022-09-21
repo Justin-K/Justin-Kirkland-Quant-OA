@@ -8,7 +8,9 @@ from json import dumps, load
 
 
 class SubredditProcessor:
-
+    """
+    A class to process and parse the data scraped by scraper.SubredditScraper into the dataclasses in data_classes.py
+    """
     def __init__(self, submissions: List[Submission], num_new_accounts: int):
         self.__content = submissions
         self.__parsed_submissions: List[RedditPost] = []
@@ -68,7 +70,9 @@ class SubredditProcessor:
 
 
 class SubredditJSONSerializer:
-
+    """
+        A class to write and load all parsed and processed data by SubredditProcessor to a JSON file.
+    """
     def __init__(self, subreddit_obj: SubredditData, file="subreddit_data.json"):
         if not subreddit_obj or not subreddit_obj.top_posts_and_comments:
             raise DataIsNoneError("The SubredditData object passed does not contain the necessary data."

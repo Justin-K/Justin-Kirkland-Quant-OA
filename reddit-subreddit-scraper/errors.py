@@ -1,3 +1,8 @@
+"""
+    A file dedicated to custom errors to more specifically identify errors.
+"""
+
+
 class SubredditInaccessibleError(Exception):
 
     def __init__(self, msg: str):
