@@ -4,6 +4,27 @@ from dataclasses import dataclass
 
 @dataclass
 class RedditUser:
+    """
+        Represents a Reddit user.
+
+            Attributes
+            ----------
+            user_name : str
+                Username of the Reddit user
+            created_on : str
+                A string representing the date (UTC) when the user created their account.
+            user_id : str
+                A base-32 Reddit user id used to identify the user.
+            comment_karma : int
+                Represents how much comment karma the user has.
+            has_reddit_gold : bool
+                Does the user have active Reddit Premium?
+
+            Methods
+            -------
+            to_dict() -> dict:
+                Returns a dictionary representation of the object to facilitate serialization.
+    """
     user_name: str
     created_on: str
     user_id: str
@@ -38,6 +59,27 @@ class Base:
 
 @dataclass
 class RedditPostComment(Base):
+    """
+    Represents a comment made on a subreddit post.
+
+            Attributes
+            ----------
+            author : str
+                The username of the user who wrote the comment.
+            id : str
+                The base-32 Reddit id of the comment.
+            upvotes : int
+                The amount of upvotes the comment has.
+            created_on : str
+                A string representing the date (UTC) when the comment was written.
+            text_html : str
+                The body of the comment in HTML.
+
+            Methods
+            -------
+            to_dict() -> dict:
+                Returns a dictionary representation of the object to facilitate serialization.
+    """
     text_html: str
 
     def to_dict(self):
@@ -48,6 +90,29 @@ class RedditPostComment(Base):
 
 @dataclass
 class RedditPost(Base):
+    """
+    Represents a post on a subreddit.
+
+            Attributes
+            ----------
+            author : str
+                The username of the user who wrote the comment.
+            id : str
+                The base-32 Reddit id of the comment.
+            upvotes : int
+                The amount of upvotes the comment has.
+            created_on : str
+                A string representing the date (UTC) when the comment was written.
+            post_comments : List[RedditPostComment]
+                A list of comments made on the post.
+            post_title: str
+                The title of the post.
+
+            Methods
+            -------
+            to_dict() -> dict:
+                Returns a dictionary representation of the object to facilitate serialization.
+    """
     post_comments: List[RedditPostComment]
     post_title: str
 
@@ -60,6 +125,21 @@ class RedditPost(Base):
 
 @dataclass
 class SubredditData:
+    """
+    Represents the 5 top subreddit posts and the 6 top comments made to each post.
+
+            Attributes
+            ----------
+            num_accounts_less_than_three_months_old : int
+                The number of accounts that are younger than three months old
+            top_posts_and_comments : List[RedditPost]
+                A list of the top 5 posts and the top 6 comments on each post.
+
+            Methods
+            -------
+            to_dict() -> dict:
+                Returns a dictionary representation of the object to facilitate serialization.
+    """
     num_accounts_less_than_three_months_old: int
     top_posts_and_comments: List[RedditPost]
 
