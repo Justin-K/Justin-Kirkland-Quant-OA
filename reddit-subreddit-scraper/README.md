@@ -12,8 +12,12 @@ Installation
 Quickstart
 ==========
 ```
-(venv) C:\path\to\reddit-subreddit-scraper\> python subreddit_scraper_cli.py r/gaming "2022-3-3" "2022-9-1" -output_file=YOUR_OUTPUT_FILE.json -comments=200
+(venv) C:\path\to\reddit-subreddit-scraper\> python subreddit_scraper_cli.py r/gaming "2022-9-18" "2022-9-19" -output_file=YOUR_OUTPUT_FILE.json -comments=200
 ```
+Sample Output
+=============
+`[*] Fetched and stored results in subreddit_data.json. Total time elapsed: 4.1 minutes.`
+
 Code Overview
 =============
 - scraper.py
