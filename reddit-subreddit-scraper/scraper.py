@@ -4,16 +4,20 @@ from praw import Reddit
 from praw.models import Submission, Subreddit
 from pmaw import Response
 from prawcore.exceptions import PrawcoreException
-from errors import SubredditInaccessibleError, DateError
+from errors import SubredditInaccessibleError, DateError, ConfigFileNotFound
 from pmaw import PushshiftAPI
 from concurrent.futures import ThreadPoolExecutor
 from enums import Timeframe
 from heapq import nlargest
+from os import listdir, getcwd
 
 
 class SubredditScraper:
 
     def __init__(self, site: str):
+        if "praw.ini" not in listdir(getcwd()):
+            raise ConfigFileNotFound(f"A praw.ini config file was not found in \"{getcwd()}\". "
+                                     f"See praw.readthedocs.io/en/stable/getting_started/configuration/prawini.html for more details.")
         self.client = Reddit(
             site,
             user_agent="script:quant_oa_bot:v1 (by u/Anon_4306)"
@@ -39,7 +43,7 @@ class SubredditScraper:
                          filter_fn=lambda t: t["score"] > 0) -> Response:
         after = int(start_date.timestamp())
         before = int(end_date.timestamp())
-        if after < before:
+        if after > before:
             raise DateError("end_date cannot be before start_date!")
         subreddit = self.validate_subreddit(subreddit_name)
         search = self.pmaw_client.search_submissions(after=after,

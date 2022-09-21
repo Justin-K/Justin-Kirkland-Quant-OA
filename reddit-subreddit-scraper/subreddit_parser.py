@@ -51,7 +51,6 @@ class SubredditProcessor:
             post_comments=parsed_comments,
             post_title=submission.title
         )
-        print(self.__parsed_submissions)
         self.__parsed_submissions.append(reddit_post)
 
     def __parse_submissions(self) -> None:
