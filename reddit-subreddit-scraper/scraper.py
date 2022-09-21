@@ -1,21 +1,17 @@
-import concurrent.futures
-from datetime import datetime, timedelta
-from typing import List, Tuple
+from typing import List
+from datetime import datetime
 from praw import Reddit
 from praw.models import Submission, Subreddit
 from pmaw import Response
 from prawcore.exceptions import PrawcoreException
-from errors import SubredditInaccessibleError
+from errors import SubredditInaccessibleError, DateError
 from pmaw import PushshiftAPI
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from enums import Timeframe
 from heapq import nlargest
 
-from pickle import dump, load
 
 class SubredditScraper:
-
-    # all api calls return lazy objects; the actual data is only fetched from the api when it is "needed"
 
     def __init__(self, site: str):
         self.client = Reddit(
@@ -40,11 +36,14 @@ class SubredditScraper:
                          subreddit_name: str,
                          start_date: datetime,
                          end_date: datetime,
-                         filter_fn=lambda t: t["score"] > 0, **kwargs) -> Response:
+                         filter_fn=lambda t: t["score"] > 0) -> Response:
+        after = int(start_date.timestamp())
+        before = int(end_date.timestamp())
+        if after < before:
+            raise DateError("end_date cannot be before start_date!")
         subreddit = self.validate_subreddit(subreddit_name)
-
-        search = self.pmaw_client.search_submissions(after=int(start_date.timestamp()),
-                                                     before=int(end_date.timestamp()),
+        search = self.pmaw_client.search_submissions(after=after,
+                                                     before=before,
                                                      subreddit=subreddit,
                                                      filter_fn=filter_fn,
                                                      )
@@ -53,10 +52,7 @@ class SubredditScraper:
     def get_top_submissions(self, subreddit: str,
                             start_date: datetime,
                             end_date: datetime) -> List[Response]:
-        search = self.scrape_subreddit(subreddit,
-                                       start_date,
-                                       end_date)
-
+        search = self.scrape_subreddit(subreddit, start_date, end_date)
         search = [i for i in search]
         s_search = nlargest(5, search, key=lambda x: x["score"])
         return s_search
@@ -76,40 +72,21 @@ class SubredditScraper:
 
         return submissions
 
-
-    #https://stackoverflow.com/questions/56269997/get-reddit-usernames-of-users-who-use-a-specific-subreddit
+    '''
+        Author: justcool393 @ StackOverflow
+        Date: 21 September 2022
+        Title: Get Reddit Usernames of Users Who Use a Specific Subreddit
+        Type: Source code
+        Location: www.stackoverflow.com/a/56452963
+        Description: The code snippet "for c in sreddit...created_on.add..." was inspired
+        by justcool393's answer to Hillcow's question.
+    '''
     def num_new_accounts(self, subreddit, comments_to_scan=200):
         sreddit = self.validate_subreddit(subreddit)
         created_on = set()
-
         for c in sreddit.comments(limit=comments_to_scan):
             a = c.author
             created_on.add(a.created_utc)
         three_months = Timeframe.MONTH.value * 3
         three_months_timestamp = datetime.now().timestamp() - three_months
         return len([i for i in created_on if i >= three_months_timestamp])
-
-
-class SimplePickler:
-
-    def __init__(self, fname: str):
-        self.file = fname
-
-    def write(self, content):
-        with open(self.file, "ab") as f:
-            dump(content, f)
-
-    def read(self):
-        content = []
-        f = open(self.file, "rb")
-        while True:
-            try:
-                content.append(load(f))
-            except EOFError:
-                f.close()
-                break
-        return content
-
-    def delete(self):
-        with open(self.file, "w") as f:
-            f.write("")

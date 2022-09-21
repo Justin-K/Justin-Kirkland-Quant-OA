@@ -3,6 +3,8 @@ from praw.models import Submission
 from data_classes import SubredditData, RedditPostComment, RedditPost, RedditUser
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from errors import DataIsNoneError
+from json import dumps, load
 
 
 class SubredditProcessor:
@@ -42,7 +44,7 @@ class SubredditProcessor:
         )
 
         reddit_post = RedditPost(
-            author=submission_op,  # Redditor object is passed instead of RedditUser object
+            author=submission_op,
             id=submission.id,
             upvotes=submission.score,
             created_on=post_creation_time,
@@ -64,3 +66,24 @@ class SubredditProcessor:
             top_posts_and_comments=self.__parsed_submissions
         )
         return subreddit
+
+
+class SubredditJSONSerializer:
+
+    def __init__(self, subreddit_obj: SubredditData, file="subreddit_data.json"):
+        if not subreddit_obj or not subreddit_obj.top_posts_and_comments:
+            raise DataIsNoneError("The SubredditData object passed does not contain the necessary data."
+                                  "(data_classes.SubredditData.top_posts_and_comments is None)")
+        self.subreddit_obj = subreddit_obj
+        self.file = file
+
+    def write_as_json(self):
+        with open(self.file, "w") as f:
+            f.write(dumps(self.subreddit_obj.to_dict(), indent=4))
+
+    def load_as_json(self):
+        with open(self.file, "r") as f:
+            if len(f.readlines()) != 0:
+                f.seek(0)
+                json_obj = load(f)
+                return json_obj

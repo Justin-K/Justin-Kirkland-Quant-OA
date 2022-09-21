@@ -1,6 +1,6 @@
-import datetime
 from typing import List
 from dataclasses import dataclass
+
 
 @dataclass
 class RedditUser:
@@ -35,6 +35,7 @@ class Base:
             "created_on": self.created_on
         }
 
+
 @dataclass
 class RedditPostComment(Base):
     text_html: str
@@ -64,6 +65,6 @@ class SubredditData:
 
     def to_dict(self):
         return {
-            "new_accounts_less_than_3m_old" : f"{self.num_accounts_less_than_three_months_old}",
+            "new_accounts_less_than_3m_old": f"{self.num_accounts_less_than_three_months_old}",
             "top_posts_and_comments": [i.to_dict() for i in self.top_posts_and_comments]
         }
